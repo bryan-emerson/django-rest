@@ -1,0 +1,12 @@
+{% extends 'tunr/base.html' %}
+{% block content %}
+  <h2> Artists </h2>
+  <a href="{% url 'artist_create' %}">Add new artist</a>
+  <ul>
+    {% for artist in artists %}
+    <li>
+      <a href="{% url 'artist_detail' pk=artist.pk %}">{{ artist.name }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
