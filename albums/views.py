@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views import View
+from django.views.generic import ListView, DetailView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 # import our models
 from .models import Artist
@@ -8,46 +11,29 @@ from .models import Artist
 from .forms import ArtistForm
 
 # Create your views here.
-class ArtistList(View):
-    def get(self, request):
-        artists = Artist.objects.all()
-        return render(request, 'tunr/artist_list.html', {'artists': artists})
+class ArtistList(ListView):
+    model = Artist
+    context_object_name = "artists"
+    template_name = "tunr/artist_list.html"
 
-class ArtistCreate(View):
-    def get(self, request):
-        form = ArtistForm()
-        return render(request, 'tunr/artist_form.html', {'form': form})
+class ArtistDetail(DetailView):
+    model = Artist
+    context_object_name = "artist"
+    template_name = "tunr/artist_detail.html"
 
-    def post(self, request):
-        form = ArtistForm(request.POST)
-        if form.is_valid():
-            artist = form.save()
-            return redirect('artist_detail', pk=artist.pk)
-        else:
-            return render(request, 'tunr/artist_form.html', {'form': form})
+class ArtistCreate(CreateView):
+    model = Artist
+    context_object_name = 'artist'
+    template_name = "tunr/artist_form.html"
+    fields = ['name', 'bio']
 
-class ArtistDetail(View):
-    def get(self, request, pk):
-        artist = Artist.objects.get(id=pk)
-        return render(request, 'tunr/artist_detail.html', {'artist': artist})
+class ArtistEdit(UpdateView):
+    model = Artist
+    context_object_name = 'artist'
+    template_name = "tunr/artist_form.html"
+    fields = ['name', 'bio']
 
-class ArtistEdit(View):
-    def get(self, request, pk):
-        artist = Artist.objects.get(id=pk)
-        form = ArtistForm(instance=artist)
-        return render(request, 'tunr/artist_form.html', {'form': form})
-    def post(self, request, pk):
-        artist = Artist.objects.get(id=pk)
-        form = ArtistForm(request.POST, instance=artist)
-        if form.is_valid():
-            artist = form.save()
-            return redirect('artist_detail', pk=artist.pk)
-        else:
-            form = ArtistForm(instance=artist)
-            return render(request, 'tunr/artist_form.html', {'form': form})
-
-class ArtistDelete(View):
-    def get(self, request, pk):
-        artist = Artist.objects.get(id=pk)
-        artist.delete()
-        return redirect('artist_list')
+class ArtistDelete(DeleteView):
+    model = Artist
+    context_object_name = 'artist'
+    success_url = reverse_lazy('artist_list')
